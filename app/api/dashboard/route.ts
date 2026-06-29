@@ -10,11 +10,12 @@ export async function GET() {
 
   const userId = session.user.id;
 
-  const [allTasks, teams, recentTasks, tasksByStatus] = await Promise.all([
-    prisma.task.findMany({
-      where: { OR: [{ creatorId: userId }, { assigneeId: userId }] },
-      select: { status: true, dueDate: true },
-    }),
+  const allTasks = await prisma.task.findMany({
+    where: { OR: [{ creatorId: userId }, { assigneeId: userId }] },
+    select: { status: true, dueDate: true },
+  });
+
+  const [teams, recentTasks, tasksByStatus] = await Promise.all([
     prisma.team.count({
       where: { OR: [{ ownerId: userId }, { members: { some: { userId } } }] },
     }),
